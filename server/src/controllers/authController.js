@@ -14,6 +14,7 @@ import logger from '../utils/logger.js';
 export const signup = async (req, res, next) => {
   try {
     const { username, email, password, confirmPassword, firstName, lastName } = req.body;
+    logger.info(`Signup request received for email=${email} ip=${req.ip}`);
 
     // Validate input
     if (!username || !email || !password || !confirmPassword) {
@@ -66,7 +67,7 @@ export const signup = async (req, res, next) => {
     }, 'User registered successfully', 201);
 
   } catch (error) {
-    logger.error(`Signup error: ${error.message}`);
+    logger.error(`Signup error: ${error.message}`, { stack: error.stack });
     next(error);
   }
 };
@@ -77,6 +78,7 @@ export const signup = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    logger.info(`Login request received for email=${email} ip=${req.ip}`);
 
     // Validate input
     if (!email || !password) {
@@ -105,6 +107,7 @@ export const login = async (req, res, next) => {
     const token = generateToken(user._id);
 
     logger.info(`User logged in: ${email}`);
+    logger.debug(`Login token generated for userId=${user._id}`);
 
     return sendSuccess(res, {
       token,
@@ -121,7 +124,7 @@ export const login = async (req, res, next) => {
     }, 'Login successful');
 
   } catch (error) {
-    logger.error(`Login error: ${error.message}`);
+    logger.error(`Login error: ${error.message}`, { stack: error.stack });
     next(error);
   }
 };

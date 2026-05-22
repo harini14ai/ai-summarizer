@@ -40,7 +40,7 @@ export const useAuthStore = create((set) => ({
       set({ user, token, loading: false });
       return response.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      const errorMessage = error.userMessage || error.response?.data?.message || 'Login failed';
       set({ error: errorMessage, loading: false });
       throw error;
     }

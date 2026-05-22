@@ -1,90 +1,144 @@
 // ============================================
-// API Service Configuration
+// API Service — works in dev AND production
 // ============================================
-// Centralized API calls with error handling
 
 import axios from 'axios';
 
-// Get token from localStorage
-const getToken = () => localStorage.getItem('token');
+// ── Base URL resolution ───────────────────────────────────────────────
+// Dev:        Vite proxy handles /api → localhost:5000
+// Production: VITE_API_URL must be set to your deployed backend URL
+//             e.g. https://ai-summarizer-api.onrender.com
+const getBaseURL = () => {
+  const env = import.meta.env.VITE_API_URL;
 
-// Create axios instance
+  if (env) {
+    // Strip trailing slash, ensure /api suffix
+    const base = env.replace(/\/+$/, '');
+    return base.endsWith('/api') ? base : `${base}/api`;
+  }
+
+  // In dev, Vite proxy forwards /api → localhost:5000/api
+  if (import.meta.env.DEV) return '/api';
+
+  // Production build without VITE_API_URL — log a clear warning
+  console.error(
+    '[API] VITE_API_URL is not set. ' +
+    'Add it to your Vercel/Netlify environment variables: ' +
+    'VITE_API_URL=https://your-backend.onrender.com'
+  );
+  return '/api'; // fallback (will fail, but won't crash at import time)
+};
+
+const BASE_URL = getBaseURL();
+
+// ── Axios instance ────────────────────────────────────────────────────
 const apiClient = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  baseURL: BASE_URL,
+  timeout: 30000, // 30s — AI calls can be slow
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// Request interceptor to add token
+// ── Request interceptor — attach JWT ─────────────────────────────────
 apiClient.interceptors.request.use(
   (config) => {
-    const token = getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    const token = localStorage.getItem('token');
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
+// ── Response interceptor — normalize errors ──────────────────────────
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+    const status  = error.response?.status;
+    const message = error.response?.data?.message;
+
+    // Auto-logout on 401 — but NOT during login/signup requests
+    if (status === 401) {
+      const url = error.config?.url || '';
+      const isAuthRequest = url.includes('/auth/login') || url.includes('/auth/signup') || url.includes('/auth/register');
+      if (!isAuthRequest) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }
     }
+
+    // Attach a human-readable message to the error object
+    if (!error.userMessage) {
+      if (!error.response) {
+        error.userMessage = 'Cannot connect to server. Check your internet connection.';
+      } else if (status === 400) {
+        error.userMessage = message || 'Invalid request. Check your input.';
+      } else if (status === 401) {
+        error.userMessage = message || 'Session expired. Please log in again.';
+      } else if (status === 403) {
+        error.userMessage = message || 'You do not have permission to do that.';
+      } else if (status === 404) {
+        error.userMessage = message || 'Resource not found.';
+      } else if (status === 429) {
+        error.userMessage = message || 'Too many requests. Please wait and try again.';
+      } else if (status >= 500) {
+        error.userMessage = message || 'Server error. Please try again later.';
+      } else {
+        error.userMessage = message || 'Something went wrong.';
+      }
+    }
+
     return Promise.reject(error);
   }
 );
 
 // ============================================
-// Authentication API Calls
+// Auth API
 // ============================================
 export const authAPI = {
-  signup: (data) => apiClient.post('/auth/signup', data),
-  login: (data) => apiClient.post('/auth/login', data),
-  getCurrentUser: () => apiClient.get('/auth/me'),
-  updateProfile: (data) => apiClient.put('/auth/profile', data),
+  signup:         (data) => apiClient.post('/auth/signup', data),
+  login:          (data) => apiClient.post('/auth/login', data),
+  getCurrentUser: ()     => apiClient.get('/auth/me'),
+  updateProfile:  (data) => apiClient.put('/auth/profile', data),
   changePassword: (data) => apiClient.put('/auth/change-password', data),
+  logout:         ()     => apiClient.post('/auth/logout'),
 };
 
 // ============================================
-// Summary API Calls
+// Summary API
 // ============================================
 export const summaryAPI = {
-  createTextSummary: (data) => apiClient.post('/summaries/text', data),
-  getSummaries: (params) => apiClient.get('/summaries', { params }),
-  getSummaryById: (id) => apiClient.get(`/summaries/${id}`),
-  updateSummary: (id, data) => apiClient.put(`/summaries/${id}`, data),
-  deleteSummary: (id) => apiClient.delete(`/summaries/${id}`),
-  searchSummaries: (query) => apiClient.get('/summaries/search/query', { params: { query } }),
-  toggleBookmark: (id) => apiClient.patch(`/summaries/${id}/bookmark`),
+  createTextSummary: (data)     => apiClient.post('/summaries/text', data),
+  getSummaries:      (params)   => apiClient.get('/summaries', { params }),
+  getSummaryById:    (id)       => apiClient.get(`/summaries/${id}`),
+  updateSummary:     (id, data) => apiClient.put(`/summaries/${id}`, data),
+  deleteSummary:     (id)       => apiClient.delete(`/summaries/${id}`),
+  searchSummaries:   (query)    => apiClient.get('/summaries/search/query', { params: { query } }),
+  toggleBookmark:    (id)       => apiClient.patch(`/summaries/${id}/bookmark`),
 };
 
 // ============================================
-// File API Calls
+// File API
 // ============================================
 export const fileAPI = {
   uploadFile: (formData) => apiClient.post('/files/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 60000, // 60s for large files
   }),
   processURL: (data) => apiClient.post('/files/url', data),
 };
 
 // ============================================
-// Admin API Calls
+// Admin API
 // ============================================
 export const adminAPI = {
-  getDashboardAnalytics: () => apiClient.get('/admin/analytics/dashboard'),
-  getAPIUsageStats: (params) => apiClient.get('/admin/analytics/api-usage', { params }),
-  getSummaryStats: () => apiClient.get('/admin/analytics/summaries'),
-  getUsersData: (params) => apiClient.get('/admin/users', { params }),
-  updateUserSubscription: (userId, data) => apiClient.put(`/admin/users/${userId}/subscription`, data),
-  deactivateUser: (userId) => apiClient.put(`/admin/users/${userId}/deactivate`),
+  getDashboardAnalytics:  ()           => apiClient.get('/admin/analytics/dashboard'),
+  getAPIUsageStats:       (params)     => apiClient.get('/admin/analytics/api-usage', { params }),
+  getSummaryStats:        ()           => apiClient.get('/admin/analytics/summaries'),
+  getUsersData:           (params)     => apiClient.get('/admin/users', { params }),
+  updateUserSubscription: (id, data)   => apiClient.put(`/admin/users/${id}/subscription`, data),
+  deactivateUser:         (id)         => apiClient.put(`/admin/users/${id}/deactivate`),
 };
 
 export default apiClient;

@@ -36,3 +36,11 @@ Thumbs.db
 # User Uploads
 server/uploads/*
 !server/uploads/.gitkeep
+
+# Test scripts (local dev only)
+test-api.mjs
+test-routes.mjs
+test-gemini.mjs
+
+# Production env files with real values (use .env.example instead)
+client/.env.production

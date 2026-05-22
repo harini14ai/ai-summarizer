@@ -232,11 +232,28 @@ sudo systemctl start nginx
 
 ---
 
-## 📊 Monitoring & Maintenance
+## 🔐 Production Authentication Configuration
 
-### View Logs
+- Frontend deployment env var:
+  - `VITE_API_URL=https://your-backend.onrender.com`
+  - If your backend already serves API under `/api`, `api.js` will append `/api` automatically.
+- Backend deployment env vars:
+  - `MONGODB_URI` (Atlas connection string)
+  - `JWT_SECRET` (strong secret)
+  - `OPENAI_API_KEY`
+  - `GEMINI_API_KEY`
+  - `CLAUDE_API_KEY`
+  - `CLIENT_URL=https://your-frontend.vercel.app`
+  - `FRONTEND_URL=https://your-frontend.vercel.app`
+  - `NODE_ENV=production`
+- In Render/Railway, make sure the backend service uses `process.env.PORT`.
+- In Vercel/Netlify, rebuild the frontend after updating `VITE_API_URL`.
+- MongoDB Atlas:
+  - whitelist your backend host IPs or use `0.0.0.0/0` temporarily
+  - ensure the cluster user has read/write access
 
-**Backend (Docker):**
+---
+
 ```bash
 docker logs ai-summarizer-backend -f
 ```
