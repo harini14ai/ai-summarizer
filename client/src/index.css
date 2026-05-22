@@ -1,0 +1,148 @@
+/* ============================================
+   Global Styles - Tailwind CSS
+   ============================================ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   Custom Animations
+   ============================================ */
+@keyframes typing {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.typing-animation {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 3.5s steps(40, end), blink 0.75s step-end infinite;
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* ============================================
+   Skeleton Loading Shimmer
+   ============================================ */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.dark .skeleton-shimmer {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ============================================
+   Custom Scrollbar
+   ============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 dark:bg-gray-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500 dark:bg-gray-500;
+}
+
+/* ============================================
+   Smooth Color Transitions
+   ============================================ */
+*, *::before, *::after {
+  transition-property: color, background-color, border-color;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+/* Exclude transforms from the global transition to avoid conflicts with framer-motion */
+.no-transition-override {
+  transition: none;
+}
+
+/* ============================================
+   Code Block Styling
+   ============================================ */
+pre {
+  @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm;
+}
+
+code {
+  @apply font-mono text-sm;
+}
+
+/* ============================================
+   Prose / Markdown Styling
+   ============================================ */
+.prose-summary h1,
+.prose-summary h2,
+.prose-summary h3 {
+  @apply font-bold text-gray-900 dark:text-white;
+}
+
+.prose-summary p {
+  @apply text-gray-700 dark:text-gray-300 leading-relaxed;
+}
+
+.prose-summary ul {
+  @apply list-disc list-inside space-y-1;
+}
+
+.prose-summary li {
+  @apply text-gray-700 dark:text-gray-300;
+}
+
+/* ============================================
+   Glass Morphism Card
+   ============================================ */
+.glass-card {
+  @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-white/20 dark:border-gray-700/50;
+}
+
+/* ============================================
+   Gradient Text
+   ============================================ */
+.gradient-text {
+  @apply bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent;
+}
+
+/* ============================================
+   Focus Ring
+   ============================================ */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900;
+}
+
+/* ============================================
+   Line Clamp Utilities
+   ============================================ */
+.line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+.line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
