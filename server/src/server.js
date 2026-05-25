@@ -8,6 +8,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
+import mongoose from 'mongoose';
 import { mkdirSync } from 'fs';
 
 // Load .env FIRST — before any other imports that read process.env
@@ -143,6 +144,31 @@ app.get('/api/health', (_req, res) => {
     mode: process.env.DEMO_MODE === 'true' ? 'demo' : 'live',
     timestamp: new Date().toISOString(),
     uptime: Math.floor(process.uptime()) + 's',
+  });
+});
+
+// ============================================
+// Debug — shows env var status (no secret values)
+// ============================================
+app.get('/api/debug', (_req, res) => {
+  const mongoUri = process.env.MONGODB_URI;
+  res.json({
+    success: true,
+    env: {
+      NODE_ENV:     process.env.NODE_ENV || '(not set)',
+      PORT:         process.env.PORT || '(not set)',
+      DEMO_MODE:    process.env.DEMO_MODE || '(not set)',
+      CLIENT_URL:   process.env.CLIENT_URL || '(not set)',
+      MONGODB_URI:  mongoUri
+        ? `SET ✓ (starts with: ${mongoUri.substring(0, 20)}...)`
+        : 'NOT SET ✗ — THIS IS WHY SIGNUP/LOGIN FAILS',
+      JWT_SECRET:   process.env.JWT_SECRET ? 'SET ✓' : 'NOT SET ✗',
+      OPENAI_KEY:   process.env.OPENAI_API_KEY ? 'SET ✓' : 'not set',
+      GEMINI_KEY:   process.env.GEMINI_API_KEY ? 'SET ✓' : 'not set',
+    },
+    mongooseState: ['disconnected','connected','connecting','disconnecting'][
+      mongoose.connection.readyState
+    ] || 'unknown',
   });
 });
 
