@@ -253,9 +253,51 @@ export const testAuth = async (_req, res) => {
   // NOTE: do not return secrets.
   // Using dynamic mongoose import to avoid top-level changes
   // Using mongoose instance from dynamic import; handle cases where connection is not ready yet
-  const mongoose = await import('mongoose');
-  const readyState = mongoose?.connection?.readyState;
-  const mongooseState = ['disconnected','connected','connecting','disconnecting'][readyState] || 'unknown';
+  try {
+    const mongoose = await import('mongoose');
+    const readyState = mongoose?.connection?.readyState;
+    const mongooseState = ['disconnected','connected','connecting','disconnecting'][readyState] || 'unknown';
+
+    return res.json({
+      success: true,
+      env: {
+        NODE_ENV: process.env.NODE_ENV || '(not set)',
+        JWT_SECRET: process.env.JWT_SECRET ? 'SET ✓' : 'NOT SET ✗',
+        MONGODB_URI: process.env.MONGODB_URI ? 'SET ✓' : 'NOT SET ✗',
+        JWT_EXPIRE: process.env.JWT_EXPIRE || '(default 7d)',
+      },
+      mongooseState,
+      routes: {
+        login: '/api/auth/login',
+        signup: '/api/auth/signup',
+        me: '/api/auth/me (protected)',
+        test: '/api/auth/test',
+      },
+      message: 'Auth debug endpoint is working. If frontend login fails, check CORS + VITE_API_URL.'
+    });
+  } catch (e) {
+    // Never break debug endpoint
+    return res.json({
+      success: false,
+      env: {
+        NODE_ENV: process.env.NODE_ENV || '(not set)',
+        JWT_SECRET: process.env.JWT_SECRET ? 'SET ✓' : 'NOT SET ✗',
+        MONGODB_URI: process.env.MONGODB_URI ? 'SET ✓' : 'NOT SET ✗',
+        JWT_EXPIRE: process.env.JWT_EXPIRE || '(default 7d)',
+      },
+      mongooseState: 'unknown',
+      routes: {
+        login: '/api/auth/login',
+        signup: '/api/auth/signup',
+        me: '/api/auth/me (protected)',
+        test: '/api/auth/test',
+      },
+      message: 'Auth debug endpoint failed to read mongoose connection state.'
+    });
+  }
+
+  // unreachable
+  // const mongooseState = 'unknown';
 
   return res.json({
     success: true,
