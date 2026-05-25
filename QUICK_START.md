@@ -41,17 +41,6 @@ npm run dev
 
 ---
 
-## Using Docker (Even Faster!)
-
-```bash
-# One command to start everything
-docker-compose up --build
-
-# Access:
-# Frontend: http://localhost:5173
-# Backend: http://localhost:5000
-```
-
 ---
 
 ## Troubleshooting

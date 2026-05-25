@@ -10,7 +10,7 @@ Your complete, production-ready AI-Powered Content Summarizer application is rea
 ai-content-summarizer/
 ├── 📁 client/                    # React Frontend (Vite + Tailwind)
 ├── 📁 server/                    # Node.js Backend (Express + MongoDB)
-├── 📄 docker-compose.yml         # Docker orchestration
+├── 📄 render.yaml                # Render Blueprint orchestration
 ├── 📄 README.md                  # Complete documentation
 ├── 📄 QUICK_START.md             # 5-minute setup guide
 ├── 📄 DEPLOYMENT_GUIDE.md        # Production deployment
@@ -54,14 +54,6 @@ ai-content-summarizer/
 
 ## 🚀 Quick Start
 
-### Option 1: Docker (Recommended)
-```bash
-cd ai-content-summarizer
-docker-compose up --build
-# Access: http://localhost:5173
-```
-
-### Option 2: Manual Setup
 ```bash
 # Backend
 cd server && npm install && npm run dev
@@ -90,7 +82,6 @@ server/
 │   ├── config/           # Database config
 │   └── server.js         # Entry point
 ├── uploads/              # File storage
-├── Dockerfile
 └── package.json
 ```
 
@@ -105,7 +96,6 @@ client/
 │   ├── utils/            # Helpers
 │   ├── App.jsx           # Main app
 │   └── main.jsx          # Entry point
-├── Dockerfile
 ├── vite.config.js
 ├── tailwind.config.js
 └── package.json
@@ -201,18 +191,13 @@ client/
 
 ## 🚀 Deployment Options
 
-### Option 1: Vercel + Render (Easiest)
+### Option 1: Vercel + Render (Recommended)
 - Frontend → Vercel
 - Backend → Render
 - Database → MongoDB Atlas
 - See DEPLOYMENT_GUIDE.md for steps
 
-### Option 2: Docker + Any Cloud
-- Railway, Heroku, AWS, GCP, Azure
-- One docker-compose command
-- Full portability
-
-### Option 3: Traditional VPS
+### Option 2: Traditional VPS
 - EC2, DigitalOcean, Linode
 - Full control
 - Higher complexity
@@ -256,7 +241,6 @@ client/
 - [ ] Test summarization
 
 ### Optional
-- [ ] Set up Docker
 - [ ] Configure additional AI keys
 - [ ] Set up Postman collection
 - [ ] Review admin features
@@ -325,12 +309,11 @@ A: User data and summaries are stored in MongoDB Atlas (free tier available).
 
 1. **Start Simple** - Test with just OpenAI first
 2. **Read Docs** - Each guide has important details
-3. **Use Docker** - Easier deployment and consistency
-4. **Monitor Costs** - Set API usage limits
-5. **Backup Data** - Regular MongoDB backups
-6. **Test First** - Use Postman before deploying
-7. **Security** - Never commit API keys
-8. **Performance** - Monitor response times
+3. **Monitor Costs** - Set API usage limits
+4. **Backup Data** - Regular MongoDB backups
+5. **Test First** - Use Postman before deploying
+6. **Security** - Never commit API keys
+7. **Performance** - Monitor response times
 
 ---
 

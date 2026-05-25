@@ -54,47 +54,6 @@ npm run dev
 - Register new account
 - Start creating summaries!
 
----
-
-## 🐳 Docker Deployment (Recommended)
-
-### Using Docker Compose
-
-```bash
-# Navigate to project root
-cd ai-content-summarizer
-
-# Create .env file with API keys
-cp .env.example .env
-nano .env
-
-# Build and start all services
-docker-compose up --build
-
-# Access services:
-# Frontend: http://localhost:5173
-# Backend API: http://localhost:5000
-# MongoDB: localhost:27017
-```
-
-### Individual Docker Containers
-
-```bash
-# Backend
-cd server
-docker build -t ai-summarizer-backend .
-docker run -p 5000:5000 \
-  -e MONGODB_URI=mongodb://... \
-  -e OPENAI_API_KEY=sk-... \
-  ai-summarizer-backend
-
-# Frontend
-cd client
-docker build -t ai-summarizer-frontend .
-docker run -p 5173:5173 ai-summarizer-frontend
-```
-
----
 
 ## 🌐 Production Deployment
 
@@ -252,16 +211,9 @@ sudo systemctl start nginx
   - whitelist your backend host IPs or use `0.0.0.0/0` temporarily
   - ensure the cluster user has read/write access
 
+
 ---
 
-```bash
-docker logs ai-summarizer-backend -f
-```
-
-**Frontend (Docker):**
-```bash
-docker logs ai-summarizer-frontend -f
-```
 
 ### Database Backup
 
@@ -275,14 +227,6 @@ mongorestore --uri="mongodb+srv://user:pass@cluster.mongodb.net" \
   ./backup
 ```
 
-### Update Environment
-
-```bash
-# Update backend env
-docker-compose down
-# Edit .env file
-docker-compose up --build
-```
 
 ---
 

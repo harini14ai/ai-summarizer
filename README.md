@@ -129,10 +129,9 @@ ai-content-summarizer/
 │   │   └── server.js                # Main server file
 │   ├── uploads/                     # File upload directory
 │   ├── package.json
-│   ├── .env.example
-│   └── Dockerfile
+│   └── .env.example
 │
-├── docker-compose.yml
+├── render.yaml
 └── README.md
 ```
 
@@ -225,22 +224,6 @@ npm run dev
 - `GET /api/admin/users` - Get users
 - `PUT /api/admin/users/:userId/subscription` - Update subscription
 
-## 🐳 Docker Deployment
-
-### Build Images
-```bash
-docker-compose build
-```
-
-### Run Containers
-```bash
-docker-compose up -d
-```
-
-### Access Services
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:5000
-- MongoDB: localhost:27017
 
 ## 📦 Deployment
 
