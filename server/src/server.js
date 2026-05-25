@@ -50,7 +50,7 @@ app.use(helmet());
 // CORS — supports multiple origins (comma-separated)
 // ============================================
 const parseOrigins = (val) =>
-  (val || '').split(',').map((s) => s.trim()).filter(Boolean);
+  (val || '').split(',').map((s) => s.trim().replace(/\/+$/, '')).filter(Boolean);
 
 const allowedOrigins = [
   ...parseOrigins(process.env.CLIENT_URL),
