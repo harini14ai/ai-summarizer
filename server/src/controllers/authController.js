@@ -80,8 +80,16 @@ export const login = async (req, res, next) => {
     const { email, password } = req.body;
     logger.info(`Login request received for email=${email} ip=${req.ip}`);
 
+    // Helpful production debug (no secrets)
+    logger.info(`Auth env: JWT_SECRET=${process.env.JWT_SECRET ? 'SET ✓' : 'NOT SET ✗'} MONGODB_URI=${process.env.MONGODB_URI ? 'SET ✓' : 'NOT SET ✗'}`);
+
+    // Don't log raw password
+
+
     // Validate input
     if (!email || !password) {
+      logger.warn(`Login validation failed: missing email/password`);
+
       return sendError(res, 'Email and password are required', null, 400);
     }
 
@@ -236,4 +244,34 @@ export const logout = async (req, res, next) => {
     logger.error(`Logout error: ${error.message}`);
     next(error);
   }
+};
+
+// ============================================
+// Auth Debug (public)
+// ============================================
+export const testAuth = async (_req, res) => {
+  // NOTE: do not return secrets.
+  // Using dynamic mongoose import to avoid top-level changes
+  // Using mongoose instance from dynamic import; handle cases where connection is not ready yet
+  const mongoose = await import('mongoose');
+  const readyState = mongoose?.connection?.readyState;
+  const mongooseState = ['disconnected','connected','connecting','disconnecting'][readyState] || 'unknown';
+
+  return res.json({
+    success: true,
+    env: {
+      NODE_ENV: process.env.NODE_ENV || '(not set)',
+      JWT_SECRET: process.env.JWT_SECRET ? 'SET ✓' : 'NOT SET ✗',
+      MONGODB_URI: process.env.MONGODB_URI ? 'SET ✓' : 'NOT SET ✗',
+      JWT_EXPIRE: process.env.JWT_EXPIRE || '(default 7d)',
+    },
+    mongooseState,
+    routes: {
+      login: '/api/auth/login',
+      signup: '/api/auth/signup',
+      me: '/api/auth/me (protected)',
+      test: '/api/auth/test',
+    },
+    message: 'Auth debug endpoint is working. If frontend login fails, check CORS + VITE_API_URL.'
+  });
 };

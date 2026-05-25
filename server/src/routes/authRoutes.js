@@ -18,4 +18,7 @@ router.put('/profile', authMiddleware, authController.updateProfile);
 router.put('/change-password', authMiddleware, authController.changePassword);
 router.post('/logout', authMiddleware, authController.logout);
 
+// Public debug route (helps production debugging)
+router.get('/test', authController.testAuth);
+
 export default router;

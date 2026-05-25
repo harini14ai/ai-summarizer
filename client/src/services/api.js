@@ -20,13 +20,14 @@ const getBaseURL = () => {
   // In dev, Vite proxy forwards /api → localhost:5000/api
   if (import.meta.env.DEV) return '/api';
 
-  // Production build without VITE_API_URL — log a clear warning
-  console.error(
-    '[API] VITE_API_URL is not set. ' +
-    'Add it to your Vercel/Netlify environment variables: ' +
-    'VITE_API_URL=https://your-backend.onrender.com'
-  );
-  return '/api'; // fallback (will fail, but won't crash at import time)
+  // Production build without VITE_API_URL — fail fast with a loud, actionable error.
+  // Without this, axios will call the relative '/api' which won’t exist on the frontend domain.
+  const msg =
+    '[API] VITE_API_URL is not set in production. ' +
+    'Set it in Vercel/Netlify env vars to your backend base URL, e.g. ' +
+    'VITE_API_URL=https://your-backend.onrender.com';
+  console.error(msg);
+  throw new Error(msg);
 };
 
 const BASE_URL = getBaseURL();

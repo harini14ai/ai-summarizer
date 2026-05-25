@@ -76,6 +76,13 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // handle pre-flight for all routes
 
+// Helpful CORS header debug for production troubleshooting
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') return next();
+  // no-op: keep ordering stable
+  next();
+});
+
 // ============================================
 // Rate Limiting
 // ============================================
